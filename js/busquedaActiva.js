@@ -71,7 +71,8 @@ const imgFound22 = document.getElementById("imgFound22");
 const imgFound23 = document.getElementById("imgFound23");
 const imgFound24 = document.getElementById("imgFound24");
 let APIKEY = "QyOxncNKEan7B4abTimnsBt6bl87ZloY";
-
+//string para guardar las imagenes likeadas
+let likedGifs = [];
 
 //FUNCION ASINCRONA AUTOINVOCADA PARA REALIZAR LA BUSQUEDA DESEADA
 (function() {
@@ -91,6 +92,7 @@ let APIKEY = "QyOxncNKEan7B4abTimnsBt6bl87ZloY";
             rObj.title = obj.title;
             rObj.username = obj.username;
             rObj.url = obj.images.downsized.url
+            rObj.id =obj.id;
             return rObj;
             });
             localStorage.setItem('copiaContent1', JSON.stringify(copiaContent1));
@@ -235,6 +237,7 @@ lista.addEventListener("click", function (e) {
             rObj.title = obj.title;
             rObj.username = obj.username;
             rObj.url = obj.images.downsized.url
+            rObj.id = obj.id;
             return rObj;
             });
         localStorage.setItem('copiaContent', JSON.stringify(copiaContent));
@@ -305,6 +308,7 @@ let leftSlider = document.getElementById("left-slider");//selecciona el boton iz
 //Funcion que realiza el hover al posicionarse sobre un GIF de la seccion trending
 thirdImage.addEventListener("mouseenter", (e) => {
     let indiceInterno = getIndexUrl(thirdImage.getAttribute("src"), copiaContent);
+    let first = localStorage.getItem("FIRST");
     console.log("mouseenterImg3");
     console.log(e.target);
     capaOpaca.className = "capaOpaca";
@@ -315,19 +319,102 @@ thirdImage.addEventListener("mouseenter", (e) => {
     title.textContent = copiaContent[indiceInterno].title;
     title.className = "title";
     capaOpaca.appendChild(title);
-    containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg'>
-    <img src='./assets/icon-download.svg'>
-    <img src='./assets/icon-max-normal.svg' id='expandThirdTrendingImg'>`;
-    containerThreeBtns.className ="container-three-btns";
-    capaOpaca.appendChild(containerThreeBtns);    
-    expandThirdTrendingImg = document.getElementById("expandThirdTrendingImg");
-    expandThirdTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+    // containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg'>
+    // <img src='./assets/icon-download.svg'>
+    // <img src='./assets/icon-max-normal.svg' id='expandThirdTrendingImg'>`;
+    // containerThreeBtns.className ="container-three-btns";
+    // capaOpaca.appendChild(containerThreeBtns);    
+    // expandThirdTrendingImg = document.getElementById("expandThirdTrendingImg");
+    // expandThirdTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+    if( first === null) {
+        containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeThirdImg">
+        <img src='./assets/icon-download.svg'>
+        <img src='./assets/icon-max-normal.svg' id="expandThirdTrendingImg">`; 
+        containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandThirdTrendingImg = document.getElementById("expandThirdTrendingImg");
+            expandThirdTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeThirdImg = document.getElementById("likeThirdImg");
+            likeThirdImg.addEventListener("click", () => {
+
+            console.log("Hello world");
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeFirstImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;  
+            //puede que falte lineas para terminar de graficar
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            localStorage.setItem("FIRST", "true");
+            let object = [];
+            object.push(copiaContent[indiceInterno]);
+            localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+    }
+    else {
+        let object = JSON.parse(localStorage.getItem("favoritos"));
+        console.log(object);
+        let gifFound = false;
+        for(let i=0; i<object.length; i++) {
+            if(object[i].id === copiaContent[indiceInterno].id) {
+                gifFound = true;
+            }
+        }
+        console.log(gifFound);
+        if(gifFound === true) {//si se encontro el gif esta en la lista de fav y al hacerle click lo unico que eremos es sacarlo de la lista
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeThirdImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandThirdTrendingImg">`;  
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandThirdTrendingImg = document.getElementById("expandThirdTrendingImg");
+            expandThirdTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeThirdImg = document.getElementById("likeThirdImg");
+            likeThirdImg.addEventListener("click", () => {
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeThirdImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandThirdTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                for(let i= 0; i<object.length; i++) {
+                    if(object[i].id === copiaContent[indiceInterno].id) {
+                        object.splice(i, 1)
+                    }
+                }
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+        else {
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeThirdImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandThirdTrendingImg">`;
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandThirdTrendingImg = document.getElementById("expandThirdTrendingImg");
+            expandThirdTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeThirdImg = document.getElementById("likeThirdImg");
+            likeThirdImg.addEventListener("click", () => {
+                console.log("Hello world");
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeThirdImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandThirdTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                object.push(copiaContent[indiceInterno]);
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+    }
 });
 
 
 //Funcion que realiza el hover al posicionarse sobre un GIF de la seccion trending
 secondImage.addEventListener("mouseenter", (e) => {
     let indiceInterno = getIndexUrl(secondImage.getAttribute("src"), copiaContent);
+    let first = localStorage.getItem("FIRST");
     console.log("mouseenterImg3");
     console.log(e.target);
     capaOpaca.className = "capaOpaca";
@@ -338,17 +425,108 @@ secondImage.addEventListener("mouseenter", (e) => {
     title.textContent = copiaContent[indiceInterno].title;
     title.className = "title";
     capaOpaca.appendChild(title);
-    containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg'>
-    <img src='./assets/icon-download.svg'>
-    <img src='./assets/icon-max-normal.svg' id='expandSecondTrendingImg'>`;
-    containerThreeBtns.className ="container-three-btns";
-    capaOpaca.appendChild(containerThreeBtns);
-    expandSecondTrendingImg = document.getElementById("expandSecondTrendingImg");
-    expandSecondTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+    // containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg'>
+    // <img src='./assets/icon-download.svg'>
+    // <img src='./assets/icon-max-normal.svg' id='expandSecondTrendingImg'>`;
+    // containerThreeBtns.className ="container-three-btns";
+    // capaOpaca.appendChild(containerThreeBtns);
+    // expandSecondTrendingImg = document.getElementById("expandSecondTrendingImg");
+    // expandSecondTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+    if( first === null) {
+        containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeSecondImg">
+        <img src='./assets/icon-download.svg'>
+        <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`; 
+        containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandSecondTrendingImg = document.getElementById("expandSecondTrendingImg");
+            expandSecondTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeSecondImg = document.getElementById("likeSecondImg");
+            likeSecondImg.addEventListener("click", () => {
+
+            console.log("Hello world");
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeSecondImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`;  
+            //puede que falte lineas para terminar de graficar
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            localStorage.setItem("FIRST", "true");
+            let object = [];
+            object.push(copiaContent[indiceInterno]);
+            localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+    }
+    else {
+        let object = JSON.parse(localStorage.getItem("favoritos"));
+        console.log(object);
+        let gifFound = false;
+        for(let i=0; i<object.length; i++) {
+            if(object[i].id === copiaContent[indiceInterno].id) {
+                gifFound = true;
+            }
+        }
+        console.log(gifFound);
+        if(gifFound === true) {//si se encontro el gif esta en la lista de fav y al hacerle click lo unico que eremos es sacarlo de la lista
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeSecondImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`;  
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandSecondTrendingImg = document.getElementById("expandSecondTrendingImg");
+            expandSecondTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeSecondImg = document.getElementById("likeSecondImg");
+            likeSecondImg.addEventListener("click", () => {
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeSecondImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                for(let i= 0; i<object.length; i++) {
+                    if(object[i].id === copiaContent[indiceInterno].id) {
+                        object.splice(i, 1)
+                    }
+                }
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+        else {
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeSecondImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`;
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandSecondTrendingImg = document.getElementById("expandSecondTrendingImg");
+            expandSecondTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeSecondImg = document.getElementById("likeSecondImg");
+            likeSecondImg.addEventListener("click", () => {
+                console.log("Hello world");
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeSecondImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandSecondTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                object.push(copiaContent[indiceInterno]);
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+    }
 });
 
+//debo eliminar el elemento
+    // for(let i= 0; i<object.length; i++) {
+    //     if(object[i].title === copiaContent[indiceInterno].title) {
+    //         object.splice(i, 1)
+    //     }
+    // }
+
 firstImage.addEventListener("mouseenter", (e) => {
-    let indiceInterno = getIndexUrl(firstImage.getAttribute("src"), copiaContent);
+    let indiceInterno = getIndexUrl(firstImage.getAttribute("src"), copiaContent);//tiene dentro de la lista de gif trending la posicion del elemento
+    let first = localStorage.getItem("FIRST");
+    console.log(first);
     console.log("mouseenterImg3");
     console.log(e.target);
     capaOpaca.className = "capaOpaca";
@@ -359,13 +537,89 @@ firstImage.addEventListener("mouseenter", (e) => {
     title.textContent = copiaContent[indiceInterno].title;
     title.className = "title";
     capaOpaca.appendChild(title);
-    containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg'>
-    <img src='./assets/icon-download.svg'>
-    <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;
-    containerThreeBtns.className ="container-three-btns";
-    capaOpaca.appendChild(containerThreeBtns);
-    expandFirstTrendingImg = document.getElementById("expandFirstTrendingImg");
-    expandFirstTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+    //logica para si dibujamos gif liked o gif unliked
+    if( first === null) {
+        containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeFirstImg">
+        <img src='./assets/icon-download.svg'>
+        <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`; 
+        containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandFirstTrendingImg = document.getElementById("expandFirstTrendingImg");
+            expandFirstTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeFistImg = document.getElementById("likeFirstImg");
+            likeFistImg.addEventListener("click", () => {
+
+            console.log("Hello world");
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeFirstImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;  
+            //puede que falte lineas para terminar de graficar
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            localStorage.setItem("FIRST", "true");
+            let object = [];
+            object.push(copiaContent[indiceInterno]);
+            localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+    }
+    else {
+        let object = JSON.parse(localStorage.getItem("favoritos"));
+        console.log(object);
+        let gifFound = false;
+        for(let i=0; i<object.length; i++) {
+            if(object[i].id === copiaContent[indiceInterno].id) {
+                gifFound = true;
+            }
+        }
+        console.log(gifFound);
+        if(gifFound === true) {//si se encontro el gif esta en la lista de fav y al hacerle click lo unico que eremos es sacarlo de la lista
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeFirstImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;  
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandFirstTrendingImg = document.getElementById("expandFirstTrendingImg");
+            expandFirstTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeFistImg = document.getElementById("likeFirstImg");
+            likeFistImg.addEventListener("click", () => {
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeFirstImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                for(let i= 0; i<object.length; i++) {
+                    if(object[i].id === copiaContent[indiceInterno].id) {
+                        object.splice(i, 1)
+                    }
+                }
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+        else {
+            containerThreeBtns.innerHTML = `<img src='./assets/icon-fav.svg' id="likeFirstImg">
+            <img src='./assets/icon-download.svg'>
+            <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;
+            containerThreeBtns.className ="container-three-btns";
+            capaOpaca.appendChild(containerThreeBtns);
+            expandFirstTrendingImg = document.getElementById("expandFirstTrendingImg");
+            expandFirstTrendingImg.addEventListener("click", ()=>window.document.location = '../gif-max.html'+ '?indice=' + indiceInterno + '&from=trendingFunction');
+            likeFistImg = document.getElementById("likeFirstImg");
+            likeFistImg.addEventListener("click", () => {
+                console.log("Hello world");
+                containerThreeBtns.innerHTML = `<img src='./assets/icon-fav-active.svg' id="likeFirstImg">
+                <img src='./assets/icon-download.svg'>
+                <img src='./assets/icon-max-normal.svg' id="expandFirstTrendingImg">`;  
+                //puede que falte lineas para terminar de graficar
+                containerThreeBtns.className ="container-three-btns";
+                capaOpaca.appendChild(containerThreeBtns);
+                object.push(copiaContent[indiceInterno]);
+                console.log(object);
+                localStorage.setItem("favoritos", JSON.stringify(object))
+            })
+        }
+    }
 });
 
 //Funcion que elimina la capaOpaca cuando uno deja de posicionarse sobre un GIF

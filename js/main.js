@@ -107,7 +107,7 @@ lista.addEventListener("click", function (e) {
 //EventListener del click en la lupa
 buscadaOn.addEventListener("change", function () {
     console.log("Hola niños2");
-    window.document.location = '../busqueda-activa.html' + '?lookingFor=' + inputText.value;
+    window.document.location = '../../busqueda-activa.html' + '?lookingFor=' + inputText.value;
 });
 
 
